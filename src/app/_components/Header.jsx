@@ -4,98 +4,150 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "◈" },
-  { href: "/expenses", label: "Expenses",  icon: "◎" },
-  { href: "/budgets",  label: "Budgets",   icon: "◇" },
+  { href: "/dashboard", label: "Dashboard", icon: "⬡" },
+  { href: "/expenses", label: "Expenses", icon: "◎" },
+  { href: "/budgets", label: "Budgets", icon: "◇" },
 ];
 
 export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header
-      style={{
-        background: "var(--bg-card)",
-        borderBottom: "1px solid var(--border)",
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        backdropFilter: "blur(12px)",
-      }}
-    >
-      <div
+    <>
+      {/* ──────────────  Desktop header ────────────── */}
+      <header
         style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "0 1.5rem",
-          height: 64,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          background: "rgba(255,255,255,0.85)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderBottom: "1px solid var(--border)",
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
         }}
       >
-        {/* Logo */}
-        <Link href="/dashboard" style={{ textDecoration: "none" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            padding: "0 1.5rem",
+            height: 60,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          {/* Logo */}
+          <Link
+            href="/dashboard"
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
             <div
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
+                width: 32,
+                height: 32,
+                borderRadius: 9,
                 background: "var(--accent)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 16,
-                boxShadow: "0 0 14px var(--accent-glow)",
+                fontSize: 15,
+                color: "white",
+                fontWeight: 900,
+                boxShadow: "0 2px 8px rgba(5,150,105,0.35)",
               }}
             >
-              ⬡
+              ₴
             </div>
             <span
               style={{
-                fontFamily: "'Syne', sans-serif",
-                fontWeight: 800,
-                fontSize: 17,
+                fontFamily: "'Cabinet Grotesk', sans-serif",
+                fontWeight: 900,
+                fontSize: 18,
                 color: "var(--text-primary)",
-                letterSpacing: "-0.03em",
+                letterSpacing: "-0.04em",
               }}
             >
-              Spendly<span style={{ color: "var(--accent)" }}>AI</span>
+              Spend<span style={{ color: "var(--accent)" }}>ly</span>
             </span>
-          </div>
-        </Link>
+          </Link>
 
-        {/* Nav */}
-        <nav style={{ display: "flex", gap: 4 }}>
-          {NAV.map(({ href, label, icon }) => {
-            const active = pathname.startsWith(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                style={{
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "6px 14px",
-                  borderRadius: 8,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                  background: active ? "var(--accent-dim)" : "transparent",
-                  border: active ? "1px solid var(--accent-glow)" : "1px solid transparent",
-                  transition: "all 0.15s",
-                }}
-              >
-                <span style={{ fontSize: 12 }}>{icon}</span>
+          {/* Desktop nav */}
+          <nav className="desktop-nav" style={{ display: "flex", gap: 2 }}>
+            {NAV.map(({ href, label, icon }) => {
+              const active = pathname.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  style={{
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 14px",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: 14,
+                    fontWeight: active ? 600 : 500,
+                    color: active ? "var(--accent)" : "var(--text-secondary)",
+                    background: active ? "var(--accent-dim)" : "transparent",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = "var(--bg-elevated)";
+                      e.currentTarget.style.color = "var(--text-primary)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--text-secondary)";
+                    }
+                  }}
+                >
+                  <span style={{ fontSize: 13 }}>{icon}</span>
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </header>
+
+      {/* ── Mobile bottom nav ──────────────────────── */}
+      <nav className="mobile-nav-bar">
+        {NAV.map(({ href, label, icon }) => {
+          const active = pathname.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              style={{
+                textDecoration: "none",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 3,
+                padding: "6px 20px",
+                borderRadius: "var(--radius-sm)",
+                color: active ? "var(--accent)" : "var(--text-muted)",
+                transition: "color 0.15s",
+              }}
+            >
+              <span style={{ fontSize: 18 }}>{icon}</span>
+              <span style={{ fontSize: 11, fontWeight: active ? 600 : 400 }}>
                 {label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-    </header>
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+    </>
   );
 }

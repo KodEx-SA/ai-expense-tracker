@@ -4,109 +4,60 @@ import { CATEGORY_COLORS, CATEGORY_ICONS } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function ExpenseCard({ expense, onEdit, onDelete }) {
-  const color = CATEGORY_COLORS[expense.category] || CATEGORY_COLORS["Uncategorized"];
-  const icon  = CATEGORY_ICONS[expense.category]  || "📦";
+  const color = CATEGORY_COLORS[expense.category] || "#94a3b8";
+  const icon = CATEGORY_ICONS[expense.category] || "📦";
 
   return (
     <div
+      className="table-row"
       style={{
         display: "flex",
         alignItems: "center",
         gap: "1rem",
-        padding: "1rem 1.25rem",
-        borderBottom: "1px solid var(--border)",
-        transition: "background 0.15s",
+        padding: "0.9rem 1.25rem",
+        borderBottom: "1px solid var(--border-light)",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-elevated)")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
     >
-      {/* Category dot + icon */}
+      {/* Icon */}
       <div
         style={{
-          width: 40,
-          height: 40,
+          width: 38,
+          height: 38,
           borderRadius: 10,
-          background: color + "20",
-          border: `1px solid ${color}40`,
+          background: color + "18",
+          border: `1px solid ${color}30`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 18,
+          fontSize: 17,
           flexShrink: 0,
         }}
       >
         {icon}
       </div>
 
-      {/* Description + category */}
+      {/* Description */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p
-          style={{
-            fontWeight: 500,
-            fontSize: 15,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
+        <p style={{ fontWeight: 500, fontSize: 14.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 3 }}>
           {expense.description}
         </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
-          <span
-            className="badge"
-            style={{ background: color + "18", color, fontSize: 11 }}
-          >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="badge" style={{ background: color + "15", color, border: `1px solid ${color}25`, fontSize: 11 }}>
             {expense.category}
           </span>
-          <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
-            {formatDate(expense.date)}
-          </span>
+          <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{formatDate(expense.date)}</span>
         </div>
       </div>
 
       {/* Amount */}
-      <div
-        style={{
-          fontFamily: "'Syne', sans-serif",
-          fontWeight: 700,
-          fontSize: 16,
-          color: "var(--text-primary)",
-          flexShrink: 0,
-        }}
-      >
+      <span className="stat-number" style={{ fontSize: 15, flexShrink: 0 }}>
         {formatCurrency(expense.amount)}
-      </div>
+      </span>
 
       {/* Actions */}
       <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-        <button
-          onClick={() => onEdit(expense)}
-          style={{
-            background: "transparent",
-            border: "1px solid var(--border-light)",
-            borderRadius: 7,
-            color: "var(--text-secondary)",
-            padding: "5px 10px",
-            fontSize: 12,
-            cursor: "pointer",
-          }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(expense.id)}
-          style={{
-            background: "transparent",
-            border: "1px solid var(--border-light)",
-            borderRadius: 7,
-            color: "var(--danger)",
-            padding: "5px 10px",
-            fontSize: 12,
-            cursor: "pointer",
-          }}
-        >
-          Del
-        </button>
+        <button className="btn-secondary" onClick={() => onEdit(expense)} style={{ padding: "5px 10px", fontSize: 12 }}>Edit</button>
+        <button className="btn-danger" onClick={() => onDelete(expense.id)} style={{ padding: "5px 10px" }}>Delete</button>
       </div>
     </div>
   );
