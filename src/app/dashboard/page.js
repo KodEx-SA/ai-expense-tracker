@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentMonthRange, groupByCategory } from "@/lib/utils";
+import { getCurrentMonthRange, formatCurrency, formatDate } from "@/lib/utils";
+import { CATEGORY_COLORS, CATEGORY_ICONS } from "@/lib/constants";
 import SummaryCards from "@/components/dashboard/SummaryCards";
 import CategoryBreakdown from "@/components/dashboard/CategoryBreakdown";
 import MonthlyTrend from "@/components/dashboard/MonthlyTrend";
@@ -10,108 +11,111 @@ import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import Link from "next/link";
 
 export default function DashboardPage() {
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses]       = useState([]);
   const [allExpenses, setAllExpenses] = useState([]);
-  const [budgets, setBudgets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [budgets, setBudgets]         = useState([]);
+  const [loading, setLoading]         = useState(true);
 
   useEffect(() => {
     async function load() {
       const { start, end } = getCurrentMonthRange();
-      const [expRes, allExpRes, budRes] = await Promise.all([
-        fetch(`/api/expenses?start=${start}&end=${end}`),
-        fetch("/api/expenses"),
-        fetch("/api/budgets"),
+      const [e1, e2, b] = await Promise.all([
+        fetch(`/api/expenses?start=${start}&end=${end}`).then(r=>r.json()),
+        fetch("/api/expenses").then(r=>r.json()),
+        fetch("/api/budgets").then(r=>r.json()),
       ]);
-      const [exp, allExp, bud] = await Promise.all([expRes.json(), allExpRes.json(), budRes.json()]);
-      setExpenses(Array.isArray(exp) ? exp : []);
-      setAllExpenses(Array.isArray(allExp) ? allExp : []);
-      setBudgets(Array.isArray(bud) ? bud : []);
+      setExpenses(Array.isArray(e1)?e1:[]);
+      setAllExpenses(Array.isArray(e2)?e2:[]);
+      setBudgets(Array.isArray(b)?b:[]);
       setLoading(false);
     }
     load();
   }, []);
 
-  const month = new Date().toLocaleDateString("en-ZA", { month: "long", year: "numeric" });
+  const month = new Date().toLocaleDateString("en-ZA",{month:"long",year:"numeric"});
+  const totalSpent = expenses.reduce((s,e) => s+Number(e.amount), 0);
 
   return (
     <div>
       {/* Page header */}
-      <div style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
-        <div className="page-wrapper" style={{ paddingTop: "1.5rem", paddingBottom: "1.5rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+      <div className="page-header">
+        <div className="page-wrapper" style={{ paddingTop:"1.75rem", paddingBottom:"1.75rem" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", flexWrap:"wrap", gap:12 }}>
             <div>
-              <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
-                Overview
-              </p>
-              <h1 style={{ fontSize: 28 }}>Dashboard</h1>
-              <p style={{ color: "var(--text-muted)", fontSize: 14, marginTop: 3 }}>{month}</p>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <span style={{ fontSize:11, fontWeight:700, color:"var(--text-muted)", textTransform:"uppercase", letterSpacing:"0.1em" }}>Overview</span>
+                <span style={{ fontSize:11, color:"var(--border-strong)" }}>·</span>
+                <span style={{ fontSize:11, color:"var(--text-muted)" }}>{month}</span>
+              </div>
+              <h1 style={{ fontSize:30, color:"var(--text-primary)", marginBottom:4 }}>Dashboard</h1>
+              {!loading && (
+                <p style={{ color:"var(--text-muted)", fontSize:13.5 }}>
+                  <span className="stat-number-accent" style={{ fontSize:13.5 }}>{formatCurrency(totalSpent)}</span>
+                  <span style={{ marginLeft:6 }}>spent this month · {expenses.length} transactions</span>
+                </p>
+              )}
             </div>
-            <Link href="/expenses" style={{ textDecoration: "none" }}>
+            <Link href="/expenses" style={{ textDecoration:"none" }}>
               <button className="btn-primary">+ Add Expense</button>
             </Link>
           </div>
         </div>
       </div>
 
-      {loading ? (
-        <LoadingSpinner center text="Loading dashboard…" />
-      ) : (
+      {loading ? <LoadingSpinner center text="Loading dashboard…" /> : (
         <div className="page-wrapper">
           {/* Stats */}
-          <div style={{ marginBottom: "1.5rem" }}>
+          <section style={{ marginBottom:"1.5rem" }}>
             <SummaryCards expenses={expenses} budgets={budgets} />
-          </div>
+          </section>
 
-          {/* AI Insights */}
-          <div style={{ marginBottom: "1.5rem" }}>
+          {/* AI */}
+          <section style={{ marginBottom:"1.5rem" }}>
             <AIInsights expenses={expenses} budgets={budgets} />
-          </div>
+          </section>
 
           {/* Charts */}
-          <div className="grid-2">
-            <div className="card" style={{ padding: "1.5rem" }}>
-              <p className="section-title" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 16, marginBottom: "1rem" }}>
-                Spending by Category
-              </p>
+          <section className="grid-2" style={{ marginBottom:"1.25rem" }}>
+            <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--radius-lg)", padding:"1.5rem" }}>
+              <p className="section-title" style={{ marginBottom:"1.1rem" }}>Spending by Category</p>
               <CategoryBreakdown expenses={expenses} />
             </div>
-            <div className="card" style={{ padding: "1.5rem" }}>
-              <p className="section-title" style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 16, marginBottom: "1rem" }}>
-                Monthly Trend
-                <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "'Instrument Sans', sans-serif", fontWeight: 400, marginLeft: 8 }}>last 6 months</span>
-              </p>
+            <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--radius-lg)", padding:"1.5rem" }}>
+              <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:"1.1rem" }}>
+                <p className="section-title">Monthly Trend</p>
+                <span style={{ fontSize:11.5, color:"var(--text-muted)" }}>last 6 months</span>
+              </div>
               <MonthlyTrend expenses={allExpenses} />
             </div>
-          </div>
+          </section>
 
-          {/* Recent expenses teaser */}
+          {/* Recent */}
           {expenses.length > 0 && (
-            <div className="card" style={{ padding: "1.5rem", marginTop: "1.25rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <p style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: 16 }}>Recent Expenses</p>
-                <Link href="/expenses" style={{ textDecoration: "none", fontSize: 13, color: "var(--accent)", fontWeight: 600 }}>
-                  View all →
-                </Link>
+            <section style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"var(--radius-lg)", padding:"1.5rem" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.1rem" }}>
+                <p className="section-title">Recent Expenses</p>
+                <Link href="/expenses" style={{ textDecoration:"none", fontSize:12.5, color:"var(--accent)", fontWeight:600, letterSpacing:"0.02em" }}>View all →</Link>
               </div>
-              {expenses.slice(0, 5).map((e) => {
-                const { CATEGORY_COLORS, CATEGORY_ICONS } = require("@/lib/constants");
-                const { formatCurrency, formatDate } = require("@/lib/utils");
+              {expenses.slice(0,5).map((e,i) => {
                 const color = CATEGORY_COLORS[e.category] || "#94a3b8";
                 return (
-                  <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.65rem 0", borderBottom: "1px solid var(--border-light)" }}>
-                    <div style={{ width: 34, height: 34, borderRadius: 9, background: color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
-                      {CATEGORY_ICONS[e.category] || "📦"}
+                  <div key={e.id} style={{
+                    display:"flex", alignItems:"center", gap:12,
+                    padding:"0.7rem 0",
+                    borderBottom: i<4?"1px solid var(--border-light)":"none",
+                  }}>
+                    <div style={{ width:36, height:36, borderRadius:10, background:`${color}12`, border:`1px solid ${color}20`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, flexShrink:0 }}>
+                      {CATEGORY_ICONS[e.category]||"📦"}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontWeight: 500, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.description}</p>
-                      <p style={{ color: "var(--text-muted)", fontSize: 12 }}>{formatDate(e.date)}</p>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <p style={{ fontWeight:500, fontSize:13.5, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", marginBottom:2 }}>{e.description}</p>
+                      <p style={{ color:"var(--text-muted)", fontSize:11.5 }}>{formatDate(e.date)}</p>
                     </div>
-                    <span style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{formatCurrency(e.amount)}</span>
+                    <span className="stat-number" style={{ fontSize:14, flexShrink:0 }}>{formatCurrency(e.amount)}</span>
                   </div>
                 );
               })}
-            </div>
+            </section>
           )}
         </div>
       )}

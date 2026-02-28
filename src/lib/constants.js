@@ -1,21 +1,7 @@
-// ============================================================
-// App-wide constants
-// ============================================================
-
 export const EXPENSE_CATEGORIES = [
-  "Food & Dining",
-  "Transport",
-  "Entertainment",
-  "Utilities",
-  "Health & Fitness",
-  "Shopping",
-  "Education",
-  "Housing",
-  "Travel",
-  "Personal Care",
-  "Gifts & Donations",
-  "Business",
-  "Uncategorized",
+  "Food & Dining","Transport","Entertainment","Utilities",
+  "Health & Fitness","Shopping","Education","Housing",
+  "Travel","Personal Care","Gifts & Donations","Business","Uncategorized",
 ];
 
 export const CATEGORY_COLORS = {
@@ -50,13 +36,4 @@ export const CATEGORY_ICONS = {
   "Uncategorized":    "📦",
 };
 
-export const CURRENCY = {
-  symbol: "R",
-  code: "ZAR",
-  locale: "en-ZA",
-};
-
-export const MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
+export const CURRENCY = { symbol: "R", code: "ZAR", locale: "en-ZA" };

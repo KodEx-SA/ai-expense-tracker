@@ -3,8 +3,12 @@ import Header from "./_components/Header";
 
 export const metadata = {
   title: "Spendly — AI Expense Tracker",
-  description: "Track expenses with AI-powered insights",
-  viewport: "width=device-width, initial-scale=1",
+  description: "Track your expenses intelligently with AI-powered insights, smart categorization, and real-time budget tracking.",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {
